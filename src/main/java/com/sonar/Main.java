@@ -1,9 +1,13 @@
-package com.jabad;
+package com.sonar;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Date;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import javax.ws.rs.client.Client;
@@ -13,9 +17,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jabad.bean.BtcBook;
-import com.jabad.bean.WebsocketMessage;
+import com.sonar.bean.BtcBook;
+import com.sonar.websocket.WebsocketClientEndpoint;
 
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -31,39 +34,25 @@ import javafx.stage.Stage;
 public class Main extends Application {
 	private static Logger logger = Logger.getLogger(Application.class.getName());
 	
-	private static final String SUBSCRIPTION_MESSAGE = "{\"action\":\"subscribe\", \"book\":\"btc_mxn\",\"type\":\"diff-orders\"}";
 	private static final String WEBSOCKET_URI = "wss://ws.bitso.com";
 	private static final String REST_URI = "https://api.bitso.com/v3/order_book/?book=btc_mxn";
 
+	private static final ScheduledExecutorService scheduler =
+		     Executors.newScheduledThreadPool(1);
+	
 	public static void main(String[] args) throws URISyntaxException, KeyManagementException, NoSuchAlgorithmException {
-		System.out.println("Connect websocket");
-
-		WebsocketClientEndpoint clientEndPoint;
-		try {
-			clientEndPoint = new WebsocketClientEndpoint(new URI(WEBSOCKET_URI));
-
-			// add listener
-			clientEndPoint.addMessageHandler(new WebsocketClientEndpoint.MessageHandler() {
-				public void handleMessage(String message) {					
-					ObjectMapper mapper = new ObjectMapper();
-					try {
-						System.out.println(message);
-						WebsocketMessage websocketMessage = mapper.readValue(message, WebsocketMessage.class);
-						System.out.println(websocketMessage);
-					} catch (Exception e) {
-						logger.warning("Cannot read message: " + message);
-					}
-				}
-			});
-
-			clientEndPoint.sendMessage(SUBSCRIPTION_MESSAGE);
-		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		
+		WebsocketClientEndpoint clientEndPoint = new WebsocketClientEndpoint(new URI(WEBSOCKET_URI));
 
 		final Client client = ClientBuilder.newClient();
 
+		scheduler.scheduleAtFixedRate(new Runnable() {
+		    @Override
+		    public void run() {
+		        System.out.println("scheduleAtFixedRate:    " + new Date());
+		    }
+		}, 1, 3L , TimeUnit.SECONDS);
+		
 		WebTarget resource = client.target(REST_URI);
 		Response response = resource.request(MediaType.APPLICATION_JSON).get();
 		if (Status.OK.getStatusCode() == response.getStatus()) {

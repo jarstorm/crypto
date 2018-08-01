@@ -1,4 +1,4 @@
-package com.jabad.bean;
+package com.sonar.bean;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

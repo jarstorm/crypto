@@ -1,6 +1,7 @@
-package com.jabad;
+package com.sonar.websocket;
 
 import java.net.URI;
+import java.util.logging.Logger;
 
 import javax.websocket.ClientEndpoint;
 import javax.websocket.CloseReason;
@@ -11,6 +12,12 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.WebSocketContainer;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sonar.bean.WebsocketMessage;
+import com.sonar.queue.MessagesQueue;
+
+import javafx.application.Application;
+
 /**
  * ChatServer Client
  *
@@ -19,13 +26,31 @@ import javax.websocket.WebSocketContainer;
 @ClientEndpoint
 public class WebsocketClientEndpoint {
 
-	Session userSession = null;
+	private Logger logger = Logger.getLogger(Application.class.getName());
+	private Session userSession = null;
 	private MessageHandler messageHandler;
+
+	private final String SUBSCRIPTION_MESSAGE = "{\"action\":\"subscribe\", \"book\":\"btc_mxn\",\"type\":\"diff-orders\"}";
 
 	public WebsocketClientEndpoint(URI endpointURI) {
 		try {
+			System.out.println("Connect websocket");
 			WebSocketContainer container = ContainerProvider.getWebSocketContainer();
 			container.connectToServer(this, endpointURI);
+			addMessageHandler(new WebsocketClientEndpoint.MessageHandler() {
+				public void handleMessage(String message) {
+					ObjectMapper mapper = new ObjectMapper();
+					try {
+						System.out.println(message);
+						WebsocketMessage websocketMessage = mapper.readValue(message, WebsocketMessage.class);
+						MessagesQueue.queueMessage(websocketMessage);
+					} catch (Exception e) {
+						logger.warning("Cannot read message: " + message);
+					}
+				}
+			});
+
+			sendMessage(SUBSCRIPTION_MESSAGE);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -39,7 +64,7 @@ public class WebsocketClientEndpoint {
 	 */
 	@OnOpen
 	public void onOpen(Session userSession) {
-		System.out.println("opening websocket");
+		System.out.println("Opening websocket");
 		this.userSession = userSession;
 	}
 
