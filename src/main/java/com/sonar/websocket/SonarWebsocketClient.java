@@ -5,16 +5,12 @@ import java.util.logging.Logger;
 
 import javax.websocket.CloseReason;
 import javax.websocket.ContainerProvider;
-import javax.websocket.MessageHandler;
 import javax.websocket.OnClose;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.WebSocketContainer;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sonar.bean.WebsocketMessage;
-import com.sonar.queue.MessagesQueue;
 import com.sonar.websocket.handler.SonarMessageHandler;
 
 public abstract class SonarWebsocketClient {
@@ -24,13 +20,12 @@ public abstract class SonarWebsocketClient {
 	private SonarMessageHandler messageHandler;	
 
 	public SonarWebsocketClient() {
-		try {
-			System.out.println("Connect websocket " + getBrokerName());
+		try {						
 			WebSocketContainer container = ContainerProvider.getWebSocketContainer();
 			container.connectToServer(this, new URI(getUrl()));
 			addMessageHandler(getMessageHandler());
 			
-			sendMessage(getWebsocketSubscriptionMessage());
+			sendMessage(getWebsocketSubscriptionMessage());			
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -96,9 +91,8 @@ public abstract class SonarWebsocketClient {
 
 	public abstract String getUrl();
 	
-	public abstract String getWebsocketSubscriptionMessage();
-	
-	public abstract String getBrokerName();
+	public abstract String getWebsocketSubscriptionMessage();	
 	
 	public abstract SonarMessageHandler getMessageHandler();
+		
 }

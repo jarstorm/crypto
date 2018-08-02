@@ -1,5 +1,7 @@
 package com.sonar.task;
 
+import java.util.logging.Logger;
+
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
@@ -12,15 +14,15 @@ import com.sonar.constants.BitsoConstants;
 import com.sonar.websocket.SonarWebsocketClient;
 
 public class ReloadStateBitso implements ReloadState {	
+	private static Logger logger = Logger.getLogger(ReloadStateBitso.class.getName());
 	
-	public ReloadStateBitso(SonarWebsocketClient clientEndPoint) {
+	public ReloadStateBitso() {
 		// TODO Auto-generated constructor stub
 	}
 
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
-		System.out.println("Preguntando a bitso");
+		logger.info("Reloading bitso state");
 		reloadRestState();
 	}
 	

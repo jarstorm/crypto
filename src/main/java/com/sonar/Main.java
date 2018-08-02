@@ -28,13 +28,17 @@ public class Main extends Application {
 	private static Logger logger = Logger.getLogger(Application.class.getName());
 	
 	public static void main(String[] args) throws URISyntaxException, KeyManagementException, NoSuchAlgorithmException {
-	
+		logger.info("Creating brokers");
 		List<SonarBroker> brokers = new ArrayList<>();
 		brokers.add(new BitsoBroker());
 		
+		logger.info("Bitso broker added");
+		
 		// Create state object
-		SonarState sonarState = new SonarState(brokers);		
+		logger.info("Create state object");
+		new SonarState(brokers);		
 
+		logger.info("Launch JavaFX application");
 		launch(args);
 	}
 

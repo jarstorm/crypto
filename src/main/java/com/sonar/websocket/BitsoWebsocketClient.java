@@ -1,7 +1,6 @@
 package com.sonar.websocket;
 
 import javax.websocket.ClientEndpoint;
-import javax.websocket.MessageHandler;
 
 import com.sonar.constants.BitsoConstants;
 import com.sonar.websocket.handler.BitsoWebsocketMessageHandler;
@@ -20,12 +19,7 @@ public class BitsoWebsocketClient extends SonarWebsocketClient {
 	@Override
 	public String getWebsocketSubscriptionMessage() {
 		return BitsoConstants.SUBSCRIPTION_MESSAGE;
-	}
-
-	@Override
-	public String getBrokerName() {
-		return "Bitso";
-	}
+	}	
 
 	@Override
 	public SonarMessageHandler getMessageHandler() {

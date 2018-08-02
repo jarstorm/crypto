@@ -13,7 +13,6 @@ public class SonarState {
 		     Executors.newScheduledThreadPool(1);
 		
 	private List<SonarBroker> brokers;
-	
 	public SonarState(List<SonarBroker> brokers) {
 		this.brokers = brokers;
 		connectAll(brokers);
@@ -21,9 +20,9 @@ public class SonarState {
 	
 	/**
 	 * Connect all brokers
-	 * @param brokers2
+	 * @param brokers
 	 */
-	private void connectAll(List<SonarBroker> brokers2) {
+	private void connectAll(List<SonarBroker> brokers) {
 		for(SonarBroker broker: brokers) {
 			Runnable reloadStateStak = broker.connect();
 			scheduler.scheduleAtFixedRate(reloadStateStak, 1, 3L , TimeUnit.SECONDS);

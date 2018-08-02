@@ -6,15 +6,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sonar.bean.WebsocketMessage;
 import com.sonar.queue.MessagesQueue;
 
-public class BitsoWebsocketMessageHandler implements SonarMessageHandler {
+public class BitsoWebsocketMessageHandler extends SonarMessageHandler {
 
 	private Logger logger = Logger.getLogger(BitsoWebsocketMessageHandler.class.getName());
 	
 	@Override
-	public void handleMessage(String message) {
+	public void internalHandleMessage(String message) {
 		ObjectMapper mapper = new ObjectMapper();
 		try {
-			System.out.println(message);
 			WebsocketMessage websocketMessage = mapper.readValue(message, WebsocketMessage.class);
 			MessagesQueue.queueMessage(websocketMessage);
 		} catch (Exception e) {
