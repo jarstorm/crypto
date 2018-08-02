@@ -3,9 +3,9 @@ package com.sonar.websocket;
 import java.net.URI;
 import java.util.logging.Logger;
 
-import javax.websocket.ClientEndpoint;
 import javax.websocket.CloseReason;
 import javax.websocket.ContainerProvider;
+import javax.websocket.MessageHandler;
 import javax.websocket.OnClose;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
@@ -15,42 +15,22 @@ import javax.websocket.WebSocketContainer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sonar.bean.WebsocketMessage;
 import com.sonar.queue.MessagesQueue;
+import com.sonar.websocket.handler.SonarMessageHandler;
 
-import javafx.application.Application;
+public abstract class SonarWebsocketClient {
 
-/**
- * ChatServer Client
- *
- * @author Jiji_Sasidharan
- */
-@ClientEndpoint
-public class WebsocketClientEndpoint {
-
-	private Logger logger = Logger.getLogger(Application.class.getName());
+	private Logger logger = Logger.getLogger(SonarWebsocketClient.class.getName());
 	private Session userSession = null;
-	private MessageHandler messageHandler;
+	private SonarMessageHandler messageHandler;	
 
-	private final String SUBSCRIPTION_MESSAGE = "{\"action\":\"subscribe\", \"book\":\"btc_mxn\",\"type\":\"diff-orders\"}";
-
-	public WebsocketClientEndpoint(URI endpointURI) {
+	public SonarWebsocketClient() {
 		try {
-			System.out.println("Connect websocket");
+			System.out.println("Connect websocket " + getBrokerName());
 			WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-			container.connectToServer(this, endpointURI);
-			addMessageHandler(new WebsocketClientEndpoint.MessageHandler() {
-				public void handleMessage(String message) {
-					ObjectMapper mapper = new ObjectMapper();
-					try {
-						System.out.println(message);
-						WebsocketMessage websocketMessage = mapper.readValue(message, WebsocketMessage.class);
-						MessagesQueue.queueMessage(websocketMessage);
-					} catch (Exception e) {
-						logger.warning("Cannot read message: " + message);
-					}
-				}
-			});
-
-			sendMessage(SUBSCRIPTION_MESSAGE);
+			container.connectToServer(this, new URI(getUrl()));
+			addMessageHandler(getMessageHandler());
+			
+			sendMessage(getWebsocketSubscriptionMessage());
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -101,7 +81,7 @@ public class WebsocketClientEndpoint {
 	 *
 	 * @param msgHandler
 	 */
-	public void addMessageHandler(MessageHandler msgHandler) {
+	public void addMessageHandler(SonarMessageHandler msgHandler) {
 		this.messageHandler = msgHandler;
 	}
 
@@ -114,13 +94,11 @@ public class WebsocketClientEndpoint {
 		this.userSession.getAsyncRemote().sendText(message);
 	}
 
-	/**
-	 * Message handler.
-	 *
-	 * @author Jiji_Sasidharan
-	 */
-	public static interface MessageHandler {
-
-		public void handleMessage(String message);
-	}
+	public abstract String getUrl();
+	
+	public abstract String getWebsocketSubscriptionMessage();
+	
+	public abstract String getBrokerName();
+	
+	public abstract SonarMessageHandler getMessageHandler();
 }

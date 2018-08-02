@@ -1,6 +1,35 @@
 package com.sonar.state;
 
+import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
+import com.sonar.broker.SonarBroker;
+
 public class SonarState {
+
+	private static final ScheduledExecutorService scheduler =
+		     Executors.newScheduledThreadPool(1);
+		
+	private List<SonarBroker> brokers;
+	
+	public SonarState(List<SonarBroker> brokers) {
+		this.brokers = brokers;
+		connectAll(brokers);
+	}
+	
+	/**
+	 * Connect all brokers
+	 * @param brokers2
+	 */
+	private void connectAll(List<SonarBroker> brokers2) {
+		for(SonarBroker broker: brokers) {
+			Runnable reloadStateStak = broker.connect();
+			scheduler.scheduleAtFixedRate(reloadStateStak, 1, 3L , TimeUnit.SECONDS);
+		}
+	}
+
 
 	/**
 	 * Number of operations to show

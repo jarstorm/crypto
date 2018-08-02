@@ -1,24 +1,17 @@
 package com.sonar;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-
-import com.sonar.bean.BtcBook;
-import com.sonar.websocket.WebsocketClientEndpoint;
+import com.sonar.broker.BitsoBroker;
+import com.sonar.broker.SonarBroker;
+import com.sonar.state.SonarState;
 
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -34,36 +27,14 @@ import javafx.stage.Stage;
 public class Main extends Application {
 	private static Logger logger = Logger.getLogger(Application.class.getName());
 	
-	private static final String WEBSOCKET_URI = "wss://ws.bitso.com";
-	private static final String REST_URI = "https://api.bitso.com/v3/order_book/?book=btc_mxn";
-
-	private static final ScheduledExecutorService scheduler =
-		     Executors.newScheduledThreadPool(1);
-	
 	public static void main(String[] args) throws URISyntaxException, KeyManagementException, NoSuchAlgorithmException {
+	
+		List<SonarBroker> brokers = new ArrayList<>();
+		brokers.add(new BitsoBroker());
 		
-		WebsocketClientEndpoint clientEndPoint = new WebsocketClientEndpoint(new URI(WEBSOCKET_URI));
+		// Create state object
+		SonarState sonarState = new SonarState(brokers);		
 
-		final Client client = ClientBuilder.newClient();
-
-		scheduler.scheduleAtFixedRate(new Runnable() {
-		    @Override
-		    public void run() {
-		        System.out.println("scheduleAtFixedRate:    " + new Date());
-		    }
-		}, 1, 3L , TimeUnit.SECONDS);
-		
-		WebTarget resource = client.target(REST_URI);
-		Response response = resource.request(MediaType.APPLICATION_JSON).get();
-		if (Status.OK.getStatusCode() == response.getStatus()) {
-			// String value = response.readEntity(String.class);
-			BtcBook value = response.readEntity(BtcBook.class);
-			System.out.println(value);
-		} else {
-			System.err.println("error");
-		}
-
-		// while (true);
 		launch(args);
 	}
 
