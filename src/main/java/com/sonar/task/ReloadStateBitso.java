@@ -11,15 +11,17 @@ import javax.ws.rs.core.Response.Status;
 
 import com.sonar.bean.BtcBook;
 import com.sonar.constants.BitsoConstants;
-import com.sonar.websocket.SonarWebsocketClient;
+import com.sonar.state.SonarState;
 
 public class ReloadStateBitso implements ReloadState {	
 	private static Logger logger = Logger.getLogger(ReloadStateBitso.class.getName());
-	
-	public ReloadStateBitso() {
-		// TODO Auto-generated constructor stub
+	private String brokerName;
+		
+	@Override
+	public void setBrokerName(String brokerName) {
+		this.brokerName = brokerName;
 	}
-
+	
 	@Override
 	public void run() {
 		logger.info("Reloading bitso state");
@@ -27,6 +29,7 @@ public class ReloadStateBitso implements ReloadState {
 	}
 	
 	private void reloadRestState() {
+		SonarState.getInstance().getasd
 		final Client client = ClientBuilder.newClient();
 		WebTarget resource = client.target(BitsoConstants.REST_URI);
 		Response response = resource.request(MediaType.APPLICATION_JSON).get();
@@ -38,5 +41,7 @@ public class ReloadStateBitso implements ReloadState {
 			System.err.println("error");
 		}
 	}
+
+	
 
 }

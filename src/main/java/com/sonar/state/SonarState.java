@@ -9,10 +9,23 @@ import com.sonar.broker.SonarBroker;
 
 public class SonarState {
 
+	private static SonarState instance;
+	
+	private SonarState() {}
+	
+	
+	public static SonarState getInstance() {
+		if (instance == null) {
+			instance = new SonarState();
+		}
+		return instance;		
+	}
+	
 	private static final ScheduledExecutorService scheduler =
 		     Executors.newScheduledThreadPool(1);
 		
 	private List<SonarBroker> brokers;
+	
 	public SonarState(List<SonarBroker> brokers) {
 		this.brokers = brokers;
 		connectAll(brokers);

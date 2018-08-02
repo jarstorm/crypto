@@ -1,7 +1,5 @@
 package com.sonar.broker;
 
-import java.util.logging.Logger;
-
 import com.sonar.task.ReloadState;
 import com.sonar.task.ReloadStateBitso;
 import com.sonar.websocket.BitsoWebsocketClient;
@@ -29,7 +27,8 @@ public class BitsoBroker extends SonarBroker {
 	}
 	
 	@Override
-	public ReloadState getReloadStateTask() {
+	public ReloadState getReloadStateTask(String name) {
+		reloadState.setBrokerName(name);
 		return reloadState;
 	}		
 

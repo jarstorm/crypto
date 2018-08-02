@@ -15,7 +15,7 @@ public abstract class SonarBroker {
 
 	public abstract SonarWebsocketClient getWebsocketClass();
 	
-	public abstract ReloadState getReloadStateTask();
+	public abstract ReloadState getReloadStateTask(String name);
 	
 	public Runnable connect() {
 		SonarWebsocketClient clientEndPoint = null;
@@ -25,7 +25,7 @@ public abstract class SonarBroker {
 		} else {
 			logger.info(getName() + " has no websocket support");
 		}
-		return getReloadStateTask();
+		return getReloadStateTask(getName());
 	}
 
 }
